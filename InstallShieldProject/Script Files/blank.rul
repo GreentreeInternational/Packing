@@ -1,0 +1,362 @@
+#ifndef _BLANK_RUL_
+#define _BLANK_RUL_
+//----------------------------------------------------------------------
+//Filename: Blank.rul
+//Author: Reinier Noom
+//Copyright: Greentree International Ltd 2003
+//Date: 17/12/2003
+//Purpose: Seperate the install procedures to those to do with the Blank System
+//Modifications:
+//Date: 27 Aptil 2004, Added Jade 6 Changes, RN
+//Date: 30 May 2014, InstallShield 2012 update
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+//Create the Database and App Services
+//----------------------------------------------------------------------
+function CreateBlankServices()
+	STRING szServiceName, szServiceDescription, szDisplayName,szPath,szLoadOrderGroup,szDependancies, szStartName, szPassword;
+    NUMBER nServiceType, nStartType, nErrorType, pTagID, nResult;
+	STRING szInstallIni, svNodeName, szBlankIni, szBlankBin, szBlankSys;
+	STRING szPathTemp, szAppPort, szDBServiceName;	
+	STRING szRegKeyPath;
+begin
+						
+	szInstallIni = svInstallIni;
+	LongPathToQuote(szInstallIni, FALSE);
+	GetProfString(szInstallIni, "Install", "NodeName", svNodeName);
+	if svNodeName == "" then
+		svNodeName = "GTServer";
+	endif;
+	
+	
+	
+	//Start the GT Server
+	szBlankBin = svBlankBin;
+	LongPathToQuote(szBlankBin, FALSE);
+	szBlankBin = szBlankBin ^ "\\jadserv.exe";
+	
+	szBlankSys = svBlankSystem;
+	LongPathToQuote(szBlankSys, FALSE);
+	
+	szBlankIni = TARGETDIR ^ "\\Live\\";
+	LongPathToQuote(szBlankIni, FALSE);
+	szBlankIni = szBlankIni ^ "\\jadegt.ini";
+			
+	//szDisplayName = svNodeName;
+	StrCutSpaces(svNodeName, szDisplayName);
+	svNodeName = szDisplayName;
+	
+	szServiceName = szDisplayName;	
+	svDBService = szServiceName;
+	
+	szPathTemp = " path=\"" + szBlankSys + "\" ini=\"" + szBlankIni + "\" service=\"" + szServiceName + "\" run";
+	szPath = "\"" + szBlankBin + "\"" + szPathTemp;
+	
+	szStartName = svNodeName;
+	szDependancies = "LanmanServer";
+	
+	szServiceDescription = "Greentree DB Server";
+	
+	RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+	szRegKeyPath = "SYSTEM\\CurrentControlSet\\Services\\";
+	if !ServiceExistsService(szServiceName) then
+		//Mark for uninstall
+		RegDBCreateKeyEx(szRegKeyPath + szServiceName, "ENUM");
+		//To be uncommented when releasing JADE 6.3.5
+		RegDBCreateKeyEx(szRegKeyPath + szServiceName, "Parameters");
+		RegDBSetKeyValueEx(szRegKeyPath + szServiceName + "\\" + "Parameters", "CommandLine", REGDB_STRING, szPath, -1);
+		RegDBSetKeyValueEx(szRegKeyPath + szServiceName + "\\" + "Parameters", "Jade Service", REGDB_NUMBER, "1", -1);
+		if (ServiceAddService(szServiceName, szDisplayName, szServiceDescription, szPath, FALSE, "") < ISERR_SUCCESS) then
+			MessageBox("Error encounted: Unable to create Greentree Database service.", SEVERE);
+      	endif;
+		
+		
+		CreateServiceDepenencies(szServiceName, szDependancies);
+	endif;
+
+	LongPathToQuote(szBlankIni, FALSE);
+	WriteProfString(szBlankIni, "JadeServer", "NodeName", szServiceName);
+	szPathTemp = "JadeLocal,Enabled,global\\"+ szServiceName + "LocalSpec";
+	WriteProfString(szBlankIni, "JadeServer", "NetworkSpecification1", szPathTemp);
+	szPathTemp = "JadeLocal,global\\" + szServiceName + "LocalSpec";
+	WriteProfString(szBlankIni, "JadeClient", "ServerNodeSpecifications", szPathTemp);
+	
+	
+	szDBServiceName = szServiceName;
+	
+	//Start the APP Server
+	GetProfString(szInstallIni, "Install", "AppServerPort", szAppPort);
+	szServiceName = svNodeName + " App " + szAppPort;
+	szDisplayName = szServiceName;
+	szServiceDescription = "Greentree Application Server on port " + szAppPort + " connecting to Greentree DB server " + szDBServiceName + " service";
+	svAppService = szServiceName;
+	szBlankBin = svBlankBin;
+	LongPathToQuote(szBlankBin, FALSE);
+	szBlankBin = "\"" + szBlankBin + "\\jadappb.exe" + "\"";
+	//LongPathToQuote(szBlankBin, TRUE);
+	szPathTemp = " path=\"" + szBlankSys + "\" AppServerPort=\"" + szAppPort + "\" ini=\"" + szBlankIni + "\""; // service=" + szServiceName + " run";
+	szPath = szBlankBin + szPathTemp;
+	
+	if !ServiceExistsService(szServiceName) then
+		//Mark for uninstall
+		RegDBCreateKeyEx(szRegKeyPath + szServiceName, "ENUM");
+	
+		//nResult = _CreateNTService(szServiceName, szDisplayName, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START,
+        //	  SERVICE_ERROR_NORMAL, szPath, "", NULL, szDBServiceName , "", "");
+        
+			
+		if (ServiceAddService(szServiceName, szDisplayName, szServiceDescription, szPath, FALSE, "") < ISERR_SUCCESS) then
+			MessageBox("Error encounted: Unable to create Greentree Application server service.", SEVERE);
+      	endif;
+		CreateServiceDepenencies(szServiceName, szDBServiceName);
+	endif;
+
+	LongPathToQuote(szBlankIni, FALSE);
+	WriteProfString(szBlankIni, "JadeAppServer", "NodeName", szServiceName);
+	szPathTemp = "Greentree App Server " + szAppPort + "(" + svBlankBin + ")";
+	WriteProfString(szBlankIni, "JadeAppServer", "NodeNameDescription", szPathTemp);		
+end;
+
+//----------------------------------------------------------------------
+//Create the items on the program folder in 98 and NT
+//----------------------------------------------------------------------
+function SetUpBlankProgramFolders()
+
+	STRING slRootDir, slBinDir, slSysDir, slIniFile;
+	
+begin
+
+	ProgDefGroupType(COMMON);
+		
+	slRootDir = TARGETDIR ^ "\\Live\\Greentree Icons";
+	slBinDir = TARGETDIR ^ "\\Live\\Bin64";
+	slSysDir = TARGETDIR ^ "\\Live\\System";
+	slIniFile = TARGETDIR ^ "\\Live\\JadeGT.ini";
+	CreateGTSystemIcons(slRootDir ,slBinDir, slSysDir, slIniFile, "",
+					bIsBlankSingle, bIsBlankMulti, bDoStartBatch, bDoStopBatch);
+	
+end;
+
+
+//----------------------------------------------------------------------
+//Create the batch files for starting and stoping the services
+//----------------------------------------------------------------------
+function GTBlankBatchFiles()
+
+	NUMBER fileHandle, result;
+	STRING binPath, sysPath, iniFile, line;
+
+begin
+
+	bDoStartBatch = FALSE;
+	bDoStopBatch = FALSE;
+
+	OpenFileMode(FILE_MODE_APPEND);
+	result = OpenFile(fileHandle, TARGETDIR ^ "\\Live\\", "StartServices.bat");
+	if result >= 0 then
+		line = "net start \"" + svDBService + "\"";
+		WriteLine(fileHandle, line);
+		line = "net start \"" + svAppService + "\"";
+		WriteLine(fileHandle, line);
+		CloseFile(fileHandle);
+		bDoStartBatch = TRUE;
+	endif;
+	OpenFileMode(FILE_MODE_APPEND);
+	result = OpenFile(fileHandle, TARGETDIR ^ "\\Live\\", "StopServices.bat");
+	if result >= 0 then
+		binPath = "";
+		StrToLower(binPath, svBlankBin);
+		StrReplace(binPath, "\\bin64", "\\bin", 0);		
+				
+		LongPathToQuote(binPath, FALSE);
+		sysPath = svBlankSystem;
+		LongPathToQuote(sysPath, FALSE);
+		iniFile = TARGETDIR ^ "\\Live";
+		LongPathToQuote(iniFile, FALSE);
+		iniFile = iniFile ^ "\\jadegt.ini";
+		iniFile = "\"" + iniFile + "\"";
+		
+		line = "\"" + binPath + "\\GreentreeShutdown.exe\" path=\"" + sysPath + "\" ini=" + iniFile;				
+		WriteLine(fileHandle, line);
+		line = "net stop \"" + svAppService + "\"";
+		WriteLine(fileHandle, line);
+		line = "net stop \"" + svDBService + "\"";
+		WriteLine(fileHandle, line);
+		CloseFile(fileHandle);
+		bDoStopBatch = TRUE;
+	endif;
+		
+end;
+
+//----------------------------------------------------------------------
+//Run the Jade App to do the registration of the key file
+//----------------------------------------------------------------------
+function RunBlankSetupWizard()
+	NUMBER nResult, nTmp, nvFileHandle;
+	STRING szCommand, szProgram, szCommand1, szProgram1;
+	STRING szInstallini, szBlankIni, szBlankSys, szBlankBin;
+	STRING szBack;
+	
+begin
+	
+	szBlankIni = TARGETDIR ^ "\\Live\\JadeGT.ini";
+	szBlankSys = svBlankSystem;
+	szBlankBin = svBlankBin;
+			
+	LongPathToQuote(szBlankSys, FALSE);
+	LongPathToQuote(szBlankBin, FALSE);
+
+	szInstallini = svInstallIni;
+	LongPathToQuote(szInstallini, FALSE);	
+	
+	if (bIsBlankSingle && !bIsBlankMulti) then
+		nResult = WriteProfString(szInstallini, "Install", "SingleUserOnly", "TRUE");
+	else
+		nResult = WriteProfString(szInstallini, "Install", "SingleUserOnly", "FALSE");
+	endif;
+	
+	if bIsDemo then
+		//So we install Demo ODBC View otherwise we install the New ODBC
+		nResult = WriteProfString(szInstallini, "Install", "DemoBin", svDemoBin);
+		nResult = WriteProfString(szInstallini, "Install", "DemoSys", svDemoSystem);
+	endif;
+	
+	SetJadeIniFileSectionForRegApp(szBlankIni, szBlankBin, "regsplash.bmp");
+	//LongPathToQuote(szBlankIni, FALSE);	
+	WriteProfString(szInstallini, "Install", "Back", "true");
+	WriteProfString(szInstallini, "RegInfo", "IsPos", "true"); 
+	
+	szProgram = szBlankBin ^ "\\Jade.exe"; //C:\\Blank\\Bin\\Jade.exe";
+//	szProgram1 = "C:\\GT\\Bin\\Jade.exe";
+	LongPathToQuote(szProgram, TRUE);
+//	szCommand1 = "path=C:\\GT\\System ini=C:\\GT\\JadeGT.ini Schema=GreenTreeSchema App=InstallSetup Server=singleuser";
+	LongPathToQuote(szBlankSys, TRUE);
+	LongPathToQuote(szBlankIni, TRUE);
+	
+	szCommand = "path=" + szBlankSys + " ini=" + szBlankIni + " Schema=LoginSchema App=InstallSetup Server=singleuser";
+	
+	nTmp = LaunchAppAndWait(szProgram, szCommand, WAIT);
+	
+	GetProfString(szInstallini, "Install", "Back", szBack);
+	
+	if nTmp < 0 then
+		MessageBox("Error encounted: Unable to register the Greentree database. Please refer to your dealer!", SEVERE);
+		szBack = "true";
+	endif;
+	
+	if szBack == "true" then
+		bInstallAborted = TRUE;
+	endif;
+	SetJadeIniFileSectionForLoginApp(szBlankIni);	
+	DeleteDir(TARGETDIR + "\\Logs" ,ALLCONTENTS);
+		
+	return nResult;	
+end;
+
+function RunGetRegData()
+	STRING szPath, szCommand, szResult, szInstallIni, szTempDir;
+	NUMBER nTmp, nResult, nCmdValue;
+	BOOL bDone;
+begin
+
+ 	Disable(DIALOGCACHE);
+	szPath = TARGETDIR ^ "\\PartialGreentreeInstaller.exe";
+	szInstallIni = svInstallIni;
+	LongPathToQuote(szInstallIni, FALSE);
+	szCommand = "ini=" + "\"" + szInstallIni + "\"";
+	nTmp = LaunchAppAndWait(szPath, szCommand, WAIT);
+	if nTmp < 0 then
+		MessageBox("Error encounted: Unable to load the Greentree Registration application" + szPath, SEVERE);
+		return CANCEL;
+	endif;
+	szCommand = "";
+	//MessageBox(szInstallIni, SEVERE);
+	GetProfString(szInstallIni, "RegInfo", "Result", szCommand);
+	StrToUpper(szResult, szCommand);
+	switch (szResult)
+		case "BACK": nResult = BACK;
+		case "NEXT": nResult = NEXT;
+		case "CANCEL": nResult = CANCEL;
+		default : nResult = CANCEL;
+	endswitch;
+	if nResult = NEXT then
+		szCommand = "";
+		GetProfString(szInstallIni, "RegInfo", "Error", szCommand);
+		if szCommand != "" then
+			MessageBox("Error encounted: " + szCommand, SEVERE);
+			return CANCEL;
+		endif;
+	endif;
+	szTempDir = "";
+	GetProfString(szInstallIni, "RegInfo", "TempDir", szTempDir);
+	if szTempDir != "" then
+		nTmp = DeleteDir(szTempDir, ALLCONTENTS);
+	endif;
+	return nResult;
+end;
+
+function RegJadeBlankSystem()
+	STRING szRegNowLater,szInstallIni, szSerialKeyName, szSerialKeyNumber, szKeyNameUnROT13;
+	STRING szBlankBin, szBlankSystem, szCommand, szProgram;
+	NUMBER nResult;
+begin
+	szInstallIni = svInstallIni;
+	LongPathToQuote(szInstallIni, FALSE);
+	szRegNowLater = "";
+	GetProfString(szInstallIni, "RegInfo", "Register", szRegNowLater);
+	StrToUpper(szRegNowLater, szRegNowLater);
+	//Do we need to register the system???
+	if szRegNowLater = "NOW" then
+		szSerialKeyName = "";
+		szSerialKeyNumber = "";
+		GetProfString(szInstallIni, "RegInfo", "JADEName", szSerialKeyName);
+		GetProfString(szInstallIni, "RegInfo", "JADEKey", szSerialKeyNumber);
+		if szSerialKeyName != "" && szSerialKeyNumber != "" then
+			//have to have both a key name and
+			rot13(szSerialKeyName, szKeyNameUnROT13);
+			//need to run jaderegb.exe from the bin directory.
+			szBlankBin = svBlankBin;
+			szBlankSystem = svBlankSystem;
+			LongPathToQuote(szBlankBin, FALSE);
+			LongPathToQuote(szBlankSystem, FALSE);
+			szProgram = szBlankBin ^ "\\jadregb.exe";
+			LongPathToQuote(szProgram, TRUE);
+			LongPathToQuote(szBlankSystem, TRUE);
+			szCommand = "path=" + szBlankSystem + " name= \"" + szKeyNameUnROT13 + "\" key= " + szSerialKeyNumber;
+			nResult = LaunchAppAndWait(szProgram, szCommand, WAIT);
+			if nResult < 0 then
+				//could not start the process off return an error
+			endif;
+		endif;
+	endif;
+end;
+
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

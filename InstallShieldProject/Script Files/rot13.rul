@@ -1,0 +1,31 @@
+
+#ifndef _ROT13_R_
+#define _ROT13_R_
+
+function rot13(szStringIn, szStringOut)
+	NUMBER n,i,strLen;
+	CHAR c;
+	STRING s, workStr;
+begin
+	workStr = "";
+	strLen = StrLength(szStringIn);
+	i = 0;
+	while i <= strLen
+		c = szStringIn[i];
+		if (((c >= 'A') && (c <= 'M')) || ((c >= 'a') && (c <= 'm'))) then
+			n = c;
+			n = n + 13;
+			c = n;
+		elseif (((c >= 'N') && (c <= 'Z')) || ((c >= 'n') && (c <= 'z'))) then
+			n = c;
+			n = n - 13;
+			c = n;
+		endif;
+		i = i + 1;
+		Sprintf(s, "%c", c);
+		workStr = workStr + s;
+	endwhile;
+	szStringOut = workStr;
+end;
+
+#endif // _ROT13_R_

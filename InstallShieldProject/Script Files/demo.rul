@@ -1,0 +1,395 @@
+#ifndef _DEMO_RUL_
+#define _DEMO_RUL_
+//----------------------------------------------------------------------
+//Filename: Demo.rul
+//Author: Reinier Noom
+//Copyright: Greentree International Ltd 2003
+//Date: 17/12/2003
+//Purpose: Seperate the install procedures to those to do with the Demo System
+//Modifications:
+//Date: 30 May 2014, InstallShield 2012 update
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+//Create the Database and App Services
+//----------------------------------------------------------------------
+function CreateDemoServices()
+	STRING szServiceName, szDisplayName,szPath,szLoadOrderGroup,szDependancies, szStartName, szPassword;
+    NUMBER nServiceType, nStartType, nErrorType, pTagID, nResult;
+	STRING szInstallIni, svNodeName, szDemoIni, szDemoBin, szDemoSys;
+	STRING szPathTemp, szAppPort, szDBServiceName, szServiceDescription;	
+	STRING szRegKeyPath;
+begin
+						
+	szInstallIni = svInstallIni;
+	LongPathToQuote(szInstallIni, FALSE);
+	GetProfString(szInstallIni, "Install", "DemoNodeName", svNodeName);
+	if svNodeName == "" then
+		svNodeName = "GTServer";
+	endif;
+	
+	//Start the GT Server
+	szDemoBin = svDemoBin;
+	LongPathToQuote(szDemoBin, FALSE);
+	szDemoBin = szDemoBin ^ "\\jadserv.exe";
+		
+	szDemoSys = svDemoSystem;
+	LongPathToQuote(szDemoSys, FALSE);
+	
+	
+	szDemoIni = TARGETDIR ^ "\\Demo\\";
+	LongPathToQuote(szDemoIni, FALSE);
+	szDemoIni = szDemoIni ^ "\\jadeDemo.ini";
+					
+	//szDisplayName = svNodeName;
+	StrCutSpaces(svNodeName, szDisplayName);
+	svNodeName = szDisplayName;
+	
+	szServiceName = szDisplayName;	
+	svDemoDBService = szServiceName;
+	
+	szPathTemp = " path=\"" + szDemoSys + "\" ini=\"" + szDemoIni + "\" service=\"" + szServiceName + "\" run";
+	szPath = "\"" + szDemoBin + "\"" + szPathTemp;
+	
+	szStartName = svNodeName;
+	//szDependancies = "Browser";
+	szDependancies = "LanmanServer";	
+	
+	szServiceDescription = "Greentree Demo DB Server";	
+	
+	RegDBSetDefaultRoot(HKEY_LOCAL_MACHINE);
+	szRegKeyPath = "SYSTEM\\CurrentControlSet\\Services\\";
+	if !ServiceExistsService(szServiceName) then
+		//Mark for uninstall
+		RegDBCreateKeyEx(szRegKeyPath + szServiceName, "ENUM");
+		//To be uncommented when releasing JADE 6.3.5
+		RegDBCreateKeyEx(szRegKeyPath + szServiceName, "Parameters");
+		RegDBSetKeyValueEx(szRegKeyPath + szServiceName + "\\" + "Parameters", "CommandLine", REGDB_STRING, szPath, -1);
+		RegDBSetKeyValueEx(szRegKeyPath + szServiceName + "\\" + "Parameters", "Jade Service", REGDB_NUMBER, "1", -1);
+		if (ServiceAddService(szServiceName, szDisplayName, szServiceDescription, szPath, FALSE, "") < ISERR_SUCCESS) then
+			MessageBox("Error encounted: Unable to create Greentree Database service.", SEVERE);
+      	endif;
+      	
+      	CreateServiceDepenencies(szServiceName, szDependancies);       	
+	endif;
+
+	LongPathToQuote(szDemoIni, FALSE);
+	WriteProfString(szDemoIni, "JadeServer", "NodeName", szServiceName);
+	szPathTemp = "JadeLocal,Enabled,global\\"+ szServiceName + "LocalSpec";
+	WriteProfString(szDemoIni, "JadeServer", "NetworkSpecification1", szPathTemp);
+	szPathTemp = "JadeLocal,global\\" + szServiceName + "LocalSpec";
+	WriteProfString(szDemoIni, "JadeClient", "ServerNodeSpecifications", szPathTemp);	
+
+	szDBServiceName = szServiceName;
+
+	//Start the APP Server
+	GetProfString(szInstallIni, "Install", "DemoAppServerPort", szAppPort);
+	szServiceName = svNodeName + "App" + szAppPort;
+	szDisplayName = szServiceName;
+	svDemoAppService = szServiceName;
+	szDemoBin = svDemoBin;
+	LongPathToQuote(szDemoBin, FALSE);
+	szDemoBin = "\"" + szDemoBin + "\\jadappb.exe" + "\"";
+	szPathTemp = " path=\"" + szDemoSys + "\" AppServerPort=\"" + szAppPort + "\" ini=\"" + szDemoIni + "\""; // service=" + szServiceName + " run";
+	szPath = szDemoBin + szPathTemp;
+
+	szServiceDescription = "Greentree Demo Application Server on port " + szAppPort + " connecting to Greentree Demo DB server " + szDBServiceName + " service";	
+	
+	if !ServiceExistsService(szServiceName) then
+		//Mark for uninstall
+		RegDBCreateKeyEx(szRegKeyPath + szServiceName, "ENUM");
+		
+		if (ServiceAddService(szServiceName, szDisplayName, szServiceDescription, szPath, FALSE, "") < ISERR_SUCCESS) then
+			MessageBox("Error encounted: Unable to create Greentree Application server service.", SEVERE);
+      	endif;      
+      	CreateServiceDepenencies(szServiceName, szDBServiceName);   	
+	endif;
+
+	LongPathToQuote(szDemoIni, FALSE);
+	WriteProfString(szDemoIni, "JadeAppServer", "NodeName", szServiceName);
+	szPathTemp = "Greentree App Server " + szAppPort + "(" + svDemoBin + ")";
+	WriteProfString(szDemoIni, "JadeAppServer", "NodeNameDescription", szPathTemp);	
+
+		
+end;
+
+//----------------------------------------------------------------------
+//Create the items on the program folder in 98 and NT
+//----------------------------------------------------------------------
+function SetUpDemoProgramFolders()
+	STRING slRootDir, slBinDir, slSysDir, slIniFile;
+	
+begin
+
+	ProgDefGroupType(COMMON);
+		
+	slRootDir = TARGETDIR ^ "\\Demo\\Greentree Demo Icons";
+	slBinDir = TARGETDIR ^ "\\Demo\\Bin64";
+	slSysDir = TARGETDIR ^ "\\Demo\\System";
+	slIniFile = TARGETDIR ^ "\\Demo\\JadeDemo.ini";
+	SetJadeIniFileSectionForLoginApp(slIniFile);
+	CreateGTSystemIcons(slRootDir ,slBinDir, slSysDir, slIniFile, "DEMO",
+				bIsDemoSingle, bIsDemoMulti, bDoDemoStartBatch, bDoDemoStopBatch);
+	
+end;
+
+
+function SetUpDemoProgramFoldersOld()
+	STRING szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, szShortCutKey;
+	NUMBER nIcon, nFlag;
+	STRING szPath, szProgram, szIni;
+begin
+
+	ProgDefGroupType(COMMON);
+	
+	if bIsDemo then
+		szProgramFolder = "Greentree\\Greentree Demo";
+		szItemName = "Greentree Demo (single user)";
+		
+		szProgram = svDemoBin;
+		LongPathToQuote(szProgram, FALSE);
+		szProgram = szProgram ^ "\\jade.exe";
+		LongPathToQuote(szProgram, TRUE);
+		
+		szPath = svDemoSystem;
+		LongPathToQuote(szPath, TRUE);
+		
+		szIni = TARGETDIR ^ "\\JadeDemo.ini";
+		LongPathToQuote(szIni, TRUE);
+		
+		if bIsDemoSingle then
+			szCommandLine = szProgram + " path=" + szPath + " ini= " + szIni + "  App=POSLogin Schema=POSSchema Server=singleuser";
+			szWorkingDir = svDemoBin;
+			LongPathToQuote(szWorkingDir, FALSE);
+			szIconPath = szWorkingDir ^ "\\packman.exe";
+			//LongPathToQuote(szIconPath, TRUE);
+			//LongPathToQuote(szWorkingDir, TRUE);
+			nIcon = 0;
+			nFlag = REPLACE;
+			AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
+			AddFolderIcon(FOLDER_DESKTOP ^ "\\Greentree_Demo_(Icons)", szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
+		endif;
+		
+		szItemName = "Greentree Demo Packman";
+		szProgram = svDemoBin;
+		LongPathToQuote(szProgram, FALSE);
+		szProgram = szProgram ^ "\\packman.exe";
+		//LongPathToQuote(szProgram, TRUE);		
+		szIconPath = szProgram;
+		szCommandLine = szProgram;
+		nIcon = 0;
+		nFlag = REPLACE;
+		AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
+		AddFolderIcon(FOLDER_DESKTOP ^ "\\Greentree_Demo_(Icons)", szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);			
+	endif;
+	
+	if bIsDemo && bIsDemoMulti then
+		//do the services
+		szItemName = "Greentree Demo (FAT)";
+		szProgram = svDemoBin;
+		LongPathToQuote(szProgram, FALSE);
+		szProgram = szProgram ^ "\\ConnectionManager.exe";
+		LongPathToQuote(szProgram, TRUE);
+		szCommandLine = "";	
+		szWorkingDir = svDemoBin;
+		LongPathToQuote(szWorkingDir, FALSE);
+		szIconPath = szWorkingDir ^ "\\packman.exe";
+		LongPathToQuote(szIconPath, FALSE);
+		nIcon = 0;
+		nFlag = REPLACE;
+		AddFolderIcon(szProgramFolder, szItemName, szProgram, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
+		AddFolderIcon(FOLDER_DESKTOP ^ "\\Greentree_Demo_(Icons)", szItemName, szProgram, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
+		
+		/*		
+		szItemName = "Greentree Packman";
+		szProgram = svDemoBin;
+		LongPathToQuote(szProgram, FALSE);
+		szProgram = szProgram ^ "\\packman.exe";
+		LongPathToQuote(szProgram, TRUE);
+		szCommandLine = szProgram;
+		szIconPath = szProgram;
+		LongPathToQuote(szIconPath, FALSE);
+		nIcon = 0;
+		nFlag = REPLACE;
+		AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);				
+		*/
+		
+		if bDoDemoStartBatch then
+			szItemName = "Start Greentree Demo Services";
+			szProgram = TARGETDIR;
+			LongPathToQuote(szProgram, FALSE);
+			szCommandLine = "\"" + szProgram + "\\StartDemoServices.bat\"";
+			szProgram = svDemoBin;
+			LongPathToQuote(szProgram, FALSE);
+			szProgram = szProgram ^ "\\packman.exe";
+			LongPathToQuote(szProgram, TRUE);
+			szIconPath = szProgram;
+			LongPathToQuote(szIconPath, FALSE);
+			szWorkingDir = TARGETDIR;
+			nIcon = 0;
+			nFlag = REPLACE|RUN_MINIMIZED;
+			AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);
+		endif;
+		
+		if bDoDemoStopBatch then
+			szItemName = "Stop Greentree Demo Services";
+			szProgram = TARGETDIR;
+			LongPathToQuote(szProgram, FALSE);
+			szCommandLine = "\"" + szProgram + "\\StopDemoServices.bat\"";
+			szProgram = svDemoBin;
+			LongPathToQuote(szProgram, FALSE);
+			szProgram = szProgram ^ "\\packman.exe";
+			LongPathToQuote(szProgram, TRUE);
+			szIconPath = szProgram;
+			LongPathToQuote(szIconPath, FALSE);
+			szWorkingDir = TARGETDIR;
+			nIcon = 0;
+			nFlag = REPLACE|RUN_MINIMIZED;
+			AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);				
+		endif;	
+	endif;
+							
+end;
+
+//----------------------------------------------------------------------
+//Create the batch files for starting and stoping the services
+//----------------------------------------------------------------------
+function GTDemoBatchFiles()
+
+	NUMBER fileHandle, result;
+	STRING binPath, sysPath, iniFile, line;
+
+begin
+
+	bDoDemoStartBatch = FALSE;
+	bDoDemoStopBatch = FALSE;
+
+	OpenFileMode(FILE_MODE_APPEND);
+	result = OpenFile(fileHandle, TARGETDIR ^ "\\Demo", "StartDemoServices.bat");
+	if result < 0 then
+		result = CreateFile(fileHandle, TARGETDIR ^ "\\Demo", "StartDemoServices.bat");
+	endif;	
+	if result >= 0 then
+		line = "net start \"" + svDemoDBService + "\"";
+		WriteLine(fileHandle, line);
+		line = "net start \"" + svDemoAppService + "\"";
+		WriteLine(fileHandle, line);
+		CloseFile(fileHandle);
+		bDoDemoStartBatch = TRUE;
+	endif;
+	OpenFileMode(FILE_MODE_APPEND);
+	result = OpenFile(fileHandle, TARGETDIR ^ "\\Demo", "StopDemoServices.bat");
+	if result < 0 then
+		result = CreateFile(fileHandle, TARGETDIR ^ "\\Demo", "StopDemoServices.bat");
+	endif;
+	if result >= 0 then
+		binPath = "";
+		StrToLower(binPath, svDemoBin);
+		StrReplace(binPath, "\\bin64", "\\bin", 0);	
+		LongPathToQuote(binPath, FALSE);
+		sysPath = svDemoSystem;
+		LongPathToQuote(sysPath, FALSE);
+		iniFile = TARGETDIR ^ "\\Demo";
+		LongPathToQuote(iniFile, FALSE);
+		iniFile = iniFile ^ "\\jadeDemo.ini";
+		iniFile = "\"" + iniFile + "\"";
+		
+		line = "\"" + binPath + "\\GreentreeShutdown.exe\" path=\"" + sysPath + "\" ini=" + iniFile;				
+		WriteLine(fileHandle, line);
+		line = "net stop \"" + svDemoAppService + "\"";
+		WriteLine(fileHandle, line);
+	 	line = "net stop \"" + svDemoDBService + "\"";
+		WriteLine(fileHandle, line);
+		CloseFile(fileHandle);
+		bDoDemoStopBatch = TRUE;
+	endif;
+		
+end;
+
+//----------------------------------------------------------------------
+//Run the Jade App to do the registration of the key file
+//----------------------------------------------------------------------
+function RunDemoSetupWizard()
+	NUMBER nResult, nTmp, nvFileHandle;
+	STRING szCommand, szProgram, szCommand1, szProgram1;
+	STRING szInstallini, szDemoIni, szDemoSys, szDemoBin;
+	STRING szBack;
+	
+begin
+	
+	szDemoIni = TARGETDIR ^ "\\Demo\\JadeDemo.ini";
+	szDemoSys = svDemoSystem;
+	szDemoBin = svDemoBin;
+	
+	LongPathToQuote(szDemoSys, FALSE);
+	LongPathToQuote(szDemoBin, FALSE);
+
+	szInstallini = svInstallIni;
+	LongPathToQuote(szInstallini, FALSE);	
+	
+	if (bIsDemoSingle && !bIsDemoMulti) then
+		nResult = WriteProfString(szInstallini, "Install", "SingleUserOnly", "TRUE");
+	else
+		nResult = WriteProfString(szInstallini, "Install", "SingleUserOnly", "FALSE");
+	endif;
+		
+	if bIsDemo then
+		//So we install Demo ODBC View otherwise we install the New ODBC
+		nResult = WriteProfString(szInstallini, "Install", "DemoBin", svDemoBin);
+		nResult = WriteProfString(szInstallini, "Install", "DemoSys", svDemoSystem);
+	endif;
+		
+	SetJadeIniFileSectionForRegApp(szDemoIni, szDemoBin, "\\demoregsplash.bmp");
+	//LongPathToQuote(szBlankIni, FALSE);	
+	WriteProfString(szInstallini, "Install", "Back", "true");
+	szProgram = szDemoBin ^ "\\Jade.exe"; //C:\\Blank\\Bin\\Jade.exe";
+//	szProgram1 = "C:\\GT\\Bin\\Jade.exe";
+	LongPathToQuote(szProgram, TRUE);
+//	szCommand1 = "path=C:\\GT\\System ini=C:\\GT\\JadeGT.ini Schema=GreenTreeSchema App=InstallSetup Server=singleuser";
+	LongPathToQuote(szDemoSys, TRUE);
+	LongPathToQuote(szDemoIni, TRUE);
+	szCommand = "path=" + szDemoSys + " ini=" + szDemoIni + " Schema=LoginSchema App=InstallSetup Server=singleuser";
+	nTmp = LaunchAppAndWait(szProgram, szCommand, WAIT);
+	
+	GetProfString(szInstallini, "Install", "Back", szBack);
+	
+	if nTmp < 0 then
+		MessageBox("Error encounted: Unable to register the Greentree Demo database. Please refer to your dealer!", SEVERE);
+		szBack = "true";
+	endif;
+	
+	if szBack == "true" then
+		bInstallAborted = TRUE;
+	endif;
+	SetJadeIniFileSectionForLoginApp(szDemoIni);
+	DeleteDir(TARGETDIR ^ "\\Logs" ,ALLCONTENTS);
+		
+	return nResult;	
+end;
+
+
+#endif
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,226 @@
+////////////////////////////////////////////////////////////////////////////////
+//  File Name:  NTService.rul
+//  Revision:   1.05
+//
+//  Description:  How to install, start, stop and remove services under NT
+//
+//  Authors:  Mike Hegyi <mikeh@epicsys.com> - Original
+//            Stephan Hagedorn <shagedorn@dspace.de> - Revisions
+//            Alan F. Barksdale <afbarksd@ingr.com> - Extensions
+//            Giorgio Cognigni <giocogni@hotmail.com> - IS3 Support
+//            Troy Engel <tengel@abtcorp.com> - Rewrite, Extensions
+//
+//  Other:    Ken Dyck <kdyck@go-dsp.com> - Reading his code helped ;-)
+//            Stefan Krueger <skrueger@installsite.org> - InstallSite guru
+////////////////////////////////////////////////////////////////////////////////
+#ifndef _NTSERVICE_RUL_
+#define _NTSERVICE_RUL_
+
+/////////////////////////////////////////////////////////////
+//    FUNCTION:  _InitServiceConnections(szServiceName)
+//
+// DESCRIPTION:  Initalizes connections to services and manager
+//
+//       INPUT:  szServiceName = String containing the service
+//                               name on the local computer. Pass
+//                               a "" here to open a simple
+//                               SCManager connection only
+//
+//      OUTPUT:  0 If function is successful in connecting
+//              -1 If function fails to connect
+/////////////////////////////////////////////////////////////
+function _InitServiceConnections(szServiceName)
+  NUMBER nReturn, nResult;
+begin
+  // Initialize global variables
+  schService = NULL;
+  schSCManager = NULL;
+  ptrMcName = NULL;     // use local machine
+  ptrDBName = NULL;     // open services active database
+
+  // Locals
+  nReturn = 0;
+  nResult = 0;
+
+  // Load ADVAPI32.DLL, which is necessary for Service Manager-
+  // related functions.
+  if (UseDLL("AdvAPI32.dll") < 0) then
+#ifdef _NTS_DEBUG
+    MessageBox ("Couldn't load AdvAPI32.dll.", SEVERE);
+#endif
+    nReturn = -1;
+  endif;
+
+  // First establish the connection with the Service Manager
+  if (nReturn = 0) then
+    schSCManager = OpenSCManagerA(ptrMcName, ptrDBName, SC_MANAGER_ALL_ACCESS);
+    if (schSCManager = NULL) then
+      nResult = GetLastError();
+#ifdef _NTS_DEBUG
+      SprintfBox(INFORMATION, "OpenSCManagerA Error",
+                 "Error connecting to Service Manager.\n\n" +
+                 "Error number = %ld.", nResult);
+#endif
+      nReturn = -1;
+    endif;
+  endif;
+
+  if (szServiceName != "") then
+    pszSStartName = &szServiceName;  //FIX IS3
+    if (nReturn = 0) then
+      // Now open the service.
+      schService = OpenServiceA(schSCManager, pszSStartName, SERVICE_ALL_ACCESS);  //FIX IS3
+      if (schService = NULL) then
+        nResult = GetLastError();
+#ifdef _NTS_DEBUG
+        SprintfBox(INFORMATION, "OpenService Error",
+                   "Error opening service.\n\n"+
+                   "Error number = %ld.", nResult);
+#endif
+        nReturn = -1;
+      endif;
+    endif;
+  endif;
+
+  return nReturn;
+end;
+
+/////////////////////////////////////////////////////////////
+//    FUNCTION:  _CloseServiceConnections()
+//
+// DESCRIPTION:  Closes connections to services and manager
+//
+//      OUTPUT:  0 If function is successful in connecting
+//              -1 If function fails to connect
+/////////////////////////////////////////////////////////////
+function _CloseServiceConnections()
+  NUMBER nResult;
+begin
+  // Close connection to Service Manager
+  if (schSCManager != NULL) then
+    nResult = CloseServiceHandle(schSCManager);
+  endif;
+
+  // Close handle of the service installed
+  if (schService != NULL) then
+    nResult = CloseServiceHandle(schService);
+  endif;
+
+  // Deinitialize global variables, just in case
+  schService = NULL;
+  schSCManager = NULL;
+  ptrMcName = NULL;     // use local machine
+  ptrDBName = NULL;     // open services active database
+
+  UnUseDLL("AdvAPI32.dll");
+
+  return nResult;
+end;
+
+
+/////////////////////////////////////////////////////////////
+// FUNCTION: _IsServiceAvailable(szServiceName)
+//
+// DESCRIPTION:  Checks to see if a service is installed
+//
+// INPUT:  szServiceName = service name to check for
+//
+//      OUTPUT:  0 If service is available
+//              -1 If service is unavailable
+/////////////////////////////////////////////////////////////
+function _IsServiceAvailable(szServiceName)
+  NUMBER nvResult;
+begin
+  nvResult = _InitServiceConnections(szServiceName);
+  _CloseServiceConnections();
+  return nvResult;
+end;
+
+
+/////////////////////////////////////////////////////////////
+//    FUNCTION:  _CreateNTService(szServiceName, szDisplayName,
+//                    nServiceType, nStartType, nErrorType,
+//                    szPath, szLoadOrderGroup, pTagID,
+//                    szDependancies, szStartName, szPassword)
+//
+// DESCRIPTION:  Creates an NT service
+//
+//       INPUT:  szSStartName = String containing the service name on
+//                              the local computer
+//
+//      OUTPUT:  0 If function is successful in deleting service
+//              -1 If function fails to deleting the service
+/////////////////////////////////////////////////////////////
+function _CreateNTService(szServiceName, szDisplayName,
+                    nServiceType, nStartType, nErrorType,
+                    szPath, szLoadOrderGroup, pTagID,
+                    szDependancies, szStartName, szPassword)
+  NUMBER nReturn, nResult;
+  POINTER pszServiceName, pszDisplayName, pszPath, pszLoadOrderGroup, pszDependancies, pszStartName, pszPassword;
+begin
+  // Initialize variables.
+  nReturn = 0;
+
+  // Open all our handles
+  _InitServiceConnections("");
+
+  pszServiceName = &szServiceName;
+  pszDisplayName = &szDisplayName;
+  pszPath = &szPath;
+  if (szLoadOrderGroup = "") then
+    pszLoadOrderGroup = NULL;
+  else
+    pszLoadOrderGroup = &szLoadOrderGroup;
+  endif;
+  if (szDependancies = "") then
+    pszDependancies = NULL;
+  else
+    pszDependancies = &szDependancies;
+  endif;
+  if (szStartName = "") then
+    pszStartName = NULL;
+  else
+    pszStartName = &szStartName;
+  endif;
+  if (szPassword = "") then
+    pszPassword = NULL;
+  else
+    pszPassword = &szPassword;
+  endif;
+
+  schService = CreateServiceA(
+       schSCManager,         // SCManager database
+       pszServiceName,       // name of service
+       pszDisplayName,       // name to display
+       SERVICE_ALL_ACCESS,   // desired access
+       nServiceType,         // service type
+       nStartType,           // start type
+       nErrorType,           // error control type
+       pszPath,              // service's binary
+       pszLoadOrderGroup,    // load ordering group
+       pTagID,               // tag identifier
+       pszDependancies,      // dependencies
+       pszStartName,         // localSystem account
+       pszPassword);         // password
+
+  if (schService = NULL) then
+    nResult = GetLastError();
+#ifdef _NTS_DEBUG
+    SprintfBox(INFORMATION, "CreateService Error",
+               "Error creating service.\n\n"+
+               "Error number = %ld.", nResult);
+#endif
+    nReturn = -1;
+  endif;
+
+  // close and NULL our handles
+  _CloseServiceConnections();
+
+  return nReturn;
+
+end;
+
+#endif // _NTSERVICE_RUL_
+
+
+
