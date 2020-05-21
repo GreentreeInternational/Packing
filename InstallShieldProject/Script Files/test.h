@@ -2,7 +2,6 @@
 #define _TEST_H_
 
 prototype CreateTestServices();
-prototype SetUpTestProgramFoldersOld();
 prototype SetUpTestProgramFolders();
 prototype GTTestBatchFiles();
 prototype RunTestSetupWizard();

@@ -1,18 +1,22 @@
 #ifndef _GENERIC_R_
 #define _GENERIC_R_
 
+//M1, CP, 14 May 2020, MGT-5086, All 64-bit: use only bin64 not bin directory, applied Jade icon to Monitor shortcut
+//		dropped ini file setting [i686-msoft-win32-ansi] FullJadeInstallDirectory
+//		used CreateShortcut which supersedes AddFolderIcon
 
-function CreateGTSystemIcons(RootDir ,BinDir, SysDir, IniFile, InstallType, SingleUser, MultiUser, doStartBatch, doStopBatch)
+// CreateShortcut parameter nIcon value 0 fetches the first icon of the executable specified by parameter szIconPath
+#define ICON0 0
+// CreateShortcut parameter szShortCutKey value "" means no shortcut
+#define NOSHORTCUTKEY ""
 
-	STRING 	sGreentreeINIFile, s32BitBin;
-	STRING 	sProgramFolder,sProgram, sApp, sSchema;
-	STRING 	sItemName,sShortCutKey,sWorkingDir, sIconPath, sCommandLine, shortCutName;
-	NUMBER 	nIcon, nFlag;
-	STRING 	sTemp;
+function CreateGTSystemIcons(RootDir, BinDir, SysDir, IniFile, InstallType, SingleUser, MultiUser, doStartBatch, doStopBatch)
+	STRING sGreentreeINIFile;
+	STRING sProgramFolder, sProgram, sApp, sSchema;
+	STRING sItemName, sWorkingDir, sGreentreeIconPath, sIconPath, sCommandLine, shortCutName;
 	BOOL IsDemo, IsTest;
-	
 	STRING sAppServerPort, sAppServerIP;
-	STRING sAppServerPortKey, sAppServerIPKey,szInstallIni;
+	STRING sAppServerPortKey, sAppServerIPKey, szInstallIni;
 begin
 	
 	szInstallIni = svInstallIni;
@@ -29,10 +33,12 @@ begin
 	sProgramFolder = "Greentree";
 	sAppServerPortKey = "AppServerPort";
 	sAppServerIPKey = "IPAddress";
-	s32BitBin = "";
-	StrToLower(s32BitBin, BinDir);
-	StrReplace(s32BitBin, "\\bin64", "\\bin", 0);
 	
+	// most shortcuts need the Greentree icon which we pinch from an executable
+	// CreateShortcut parameter szIconPath 
+	// Do not call LongPathToQuote to enclose this path in quotation marks. 
+	// InstallShield automatically encloses these paths in quotation marks.
+	sGreentreeIconPath = BinDir ^ "\\ConnectionManager.exe";
 	sGreentreeINIFile = BinDir ^ "\\greentree.ini";
 	
 	if IsDemo then
@@ -54,58 +60,44 @@ begin
 		endif;
 	endif;
 	
-	WriteProfString(IniFile, "i686-msoft-win32-ansi", "FullJadeInstallDirectory", s32BitBin);
-		
 	GetProfString(szInstallIni, "Install", sAppServerIPKey, sAppServerIP);
 	GetProfString(szInstallIni, "Install", sAppServerPortKey, sAppServerPort);
-				
-	GetProfString(sGreentreeINIFile, "Greentree","Schema",sSchema);
-	GetProfString(sGreentreeINIFile, "Greentree","Login",sApp);
+	GetProfString(sGreentreeINIFile, "Greentree", "Schema", sSchema);
+	GetProfString(sGreentreeINIFile, "Greentree", "Login", sApp);
 	if (sSchema = "") then
 		sApp = "Login";
 		sSchema = "GreenTreeSchema";
 	endif;
-	nFlag = REPLACE;	
+				  
 	sProgram = BinDir ^ "\\jade.exe";		
 	LongPathToQuote(sProgram, TRUE);
 	//Single User Installation
 	if (SingleUser) then
-			LongPathToQuote(SysDir, TRUE);
-			LongPathToQuote(IniFile, TRUE);
-			sCommandLine = "path=" + SysDir + " ini=" + IniFile + " App=" + sApp + " Schema=" + sSchema + " Server=singleuser";
-			sWorkingDir = BinDir;
-			//In the mean time get the GT Icon from PackMan. This will need to be changed in the future.
-			sIconPath = s32BitBin ^ "\\packman.exe";
-			LongPathToQuote(sIconPath, TRUE);
-			nIcon = REPLACE;
-			sItemName = "Greentree (single user)";
-			sShortCutKey = "";
-			if IsDemo then
-				sItemName = "Greentree Demo (Single User)";
-			endif;
-			if IsTest then
-				sItemName = "Greentree Test (Single User)";
-			endif;
-			shortCutName = RootDir ^ "\\" ^ sItemName + ".lnk";
-			LongPathToQuote(shortCutName, FALSE);
-			LongPathToQuote(sIconPath, FALSE);
-			//createShortCut(shortCutName, sProgram, sItemName, sWorkingDir, sCommandLine, sIconPath, nIcon);
-			sCommandLine = sProgram + " " + sCommandLine;
-			AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-			AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-			
+		LongPathToQuote(SysDir, TRUE);
+		LongPathToQuote(IniFile, TRUE);
+		sCommandLine = "path=" + SysDir + " ini=" + IniFile + " App=" + sApp + " Schema=" + sSchema + " Server=singleuser";
+		sWorkingDir = BinDir;
+		sItemName = "Greentree (single user)";
+		if IsDemo then
+			sItemName = "Greentree Demo (Single User)";
+		endif;
+		if IsTest then
+			sItemName = "Greentree Test (Single User)";
+		endif;
+		shortCutName = RootDir ^ "\\" ^ sItemName + ".lnk";
+		LongPathToQuote(shortCutName, FALSE);
+		sCommandLine = sProgram + " " + sCommandLine;
+		CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
+		CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
 	endif;
 	LongPathToQuote(RootDir, FALSE);
 	LongPathToQuote(BinDir, FALSE);
 	LongPathToQuote(SysDir, FALSE);
 	LongPathToQuote(IniFile, FALSE);
-	//each install gets a PackMan Icon
+	//each install gets a PackMan shortcut
 	sCommandLine = "";
 	sWorkingDir = BinDir;
-	sIconPath = s32BitBin ^ "\\packman.exe";
 	sProgram = sWorkingDir ^ "\\packman.exe";
-	LongPathToQuote(sIconPath, TRUE);
-	nIcon = 0;
 	sItemName = "Greentree Packman";
 	if IsDemo then
 		sItemName = "Greentree Demo Packman";
@@ -115,42 +107,32 @@ begin
 	endif;
 	shortCutName = RootDir ^ "\\" ^ sItemName + ".lnk";
 	LongPathToQuote(shortCutName, FALSE);
-	LongPathToQuote(sIconPath, FALSE);
 	LongPathToQuote(sProgram, TRUE);
 	sCommandLine = sProgram;
-	AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-	AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);	
+	CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
+	CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
 	if MultiUser then
-		//Add the services Icon Only in Multi-User
+		//Add the services shortcut only in Multi-User
 		sItemName = "Services Shortcut";
 		shortCutName = RootDir ^ "\\" ^ sItemName  + ".lnk";
 		sCommandLine = "/s";
 		sProgram = "%SystemRoot%\\system32\\services.msc";
 		sWorkingDir = "%HOMEDRIVE%%HOMEPATH%";
 		sIconPath = "%SystemRoot%\\system32\\filemgmt.dll";
-		nIcon = 0;
 		LongPathToQuote(shortCutName, FALSE);
 		LongPathToQuote(sIconPath, FALSE);
-		//createShortCut(shortCutName, sProgram, sItemName, sWorkingDir, sCommandLine, sIconPath, nIcon);
 		LongPathToQuote(sProgram, TRUE);
 		sCommandLine = sProgram + " " + sCommandLine;
-		AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-		AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);	
+		CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
+		CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
 		
 		//Add Greentree Connection Manager Admin, Multi-User
-		LongPathToQuote(RootDir, FALSE);
-		LongPathToQuote(BinDir, FALSE);
-		LongPathToQuote(SysDir, FALSE);
-		LongPathToQuote(IniFile, FALSE);
 		LongPathToQuote(SysDir, TRUE);
 		LongPathToQuote(IniFile, TRUE);
-		sProgram = s32BitBin ^ "\\jade.exe";		
+		sProgram = BinDir ^ "\\jade.exe"; //M1
 		sCommandLine = "path=" + SysDir + " ini=" + IniFile + " App=ConnectionAdmin Schema=JadeConnectionSchema Server=MultiUser Name=External";
-		sWorkingDir = s32BitBin;
-		//The icon is currently linked to the packman icon... this will need to be changed
-		sIconPath = s32BitBin ^ "\\packman.exe";
-	 	LongPathToQuote(sIconPath, TRUE);
-		nIcon = 0;
+		sWorkingDir = BinDir; //M1
+			
 		sItemName = "Greentree Connection Manager Admin";
 		if IsDemo then
 			sItemName = "Greentree Connection Manager Admin (Demo)";
@@ -160,39 +142,28 @@ begin
 		endif;
 		shortCutName = RootDir ^ "\\" ^ sItemName + ".lnk";
 		LongPathToQuote(shortCutName, FALSE);
-		LongPathToQuote(sIconPath, FALSE);
-		//createShortCut(shortCutName, sProgram, sItemName, sWorkingDir, sCommandLine, sIconPath, nIcon);
 		LongPathToQuote(sProgram, TRUE);
 		sCommandLine = sProgram + " " + sCommandLine;
-		AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-		AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);	
+		CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
+		CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE);	//M1
 		
 		//Add Greentree Connection manager admin, single user
-		
 		sCommandLine = "path=" + SysDir + " ini=" + IniFile + " App=ConnectionAdmin Schema=JadeConnectionSchema Server=SingleUser";
 		sProgram = BinDir ^ "\\jade.exe";		
 		sItemName = sItemName + " Single User";
 		shortCutName = RootDir ^ "\\" ^ sItemName + ".lnk";
 		sWorkingDir = BinDir;
 		LongPathToQuote(shortCutName, FALSE);
-		LongPathToQuote(sIconPath, FALSE);
-		//createShortCut(shortCutName, sProgram, sItemName, sWorkingDir, sCommandLine, sIconPath, nIcon);
 		LongPathToQuote(sProgram, TRUE);
 		sCommandLine = sProgram + " " + sCommandLine;
-		AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-		AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);	
+		CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
+		CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1	
 		
-				
 		//Greentree Client
 		sCommandLine = "path=" + SysDir + " ini=" + IniFile + " App=" + sApp + " Schema=" + sSchema + " Server=MultiUser Name=External";
-		sWorkingDir = s32BitBin;
-		sProgram = sWorkingDir ^ "\\jade.exe";
-		//In the mean time get the GT Icon from PackMan. This will need to be changed in the future.
-		sIconPath = s32BitBin ^ "\\packman.exe";
-		LongPathToQuote(sIconPath, TRUE);
-		nIcon = 0;
+		sWorkingDir = BinDir; //M1
+		sProgram = sWorkingDir ^ "\\jade.exe"; //M1
 		sItemName = "Greentree Client";
-		sShortCutKey = "";
 	 	if IsDemo then
 			sItemName = "Greentree Demo Client";
 		endif;
@@ -201,21 +172,14 @@ begin
 		endif;
 		shortCutName = RootDir ^ "\\" ^ sItemName + ".lnk";
 		LongPathToQuote(shortCutName, FALSE);
-		LongPathToQuote(sIconPath, FALSE);
-		//createShortCut(shortCutName, sProgram, sItemName, sWorkingDir, sCommandLine, sIconPath, nIcon);
 		LongPathToQuote(sProgram, TRUE);
 		sCommandLine = sProgram + " " + sCommandLine;
-		AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-		AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
+		CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
+		CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
 		//Greentree Client External
 		sCommandLine = "path=" + SysDir + " ini=" + IniFile + " AppServer=" + sAppServerIP + " AppServerPort=" + sAppServerPort + " App=" + sApp + " Schema=" + sSchema + " Server=MultiUser Name=External";
-		sWorkingDir = s32BitBin;
-		//In the mean time get the GT Icon from PackMan. This will need to be changed in the future.
-		sIconPath = s32BitBin ^ "\\packman.exe";
-		LongPathToQuote(sIconPath, TRUE);
-		nIcon = 0;
+		sWorkingDir = BinDir; //M1
 		sItemName = "Greentree Client (Thin)";
-		sShortCutKey = "";
 	 	if IsDemo then
 			sItemName = "Greentree Demo Client (Thin)";
 		endif;
@@ -224,29 +188,24 @@ begin
 		endif;
 		shortCutName = RootDir ^ "\\" ^ sItemName + ".lnk";
 		LongPathToQuote(shortCutName, FALSE);
-		LongPathToQuote(sIconPath, FALSE);
-		//createShortCut(shortCutName, sProgram, sItemName, sWorkingDir, sCommandLine, sIconPath, nIcon);
 		LongPathToQuote(sProgram, TRUE);
 		sCommandLine = sProgram + " " + sCommandLine;
-		AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-		AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
+		CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
+		CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
 
 		//Add shortcuts for Jade Monitor
 		sItemName = "Jade Monitor";
 		sCommandLine = "path=" + SysDir + " ini=" + IniFile + " App=JadeMonitor" + " Schema=JadeMonitorSchema Server=MultiUser Name=External";				
 		sCommandLine = sProgram + " " + sCommandLine;
-		AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-		AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-
-
-		
-	endif;
+		sWorkingDir = BinDir; //M1
+		sIconPath = BinDir ^ "\\jade.exe"; //M1
+		CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
+		CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
+	endif; // MultiUser
 	
 	//Now add a Folder on the desktop to link to the this shortcuts folder
 	sWorkingDir = RootDir;
 	sCommandLine = "";
-	sIconPath = s32BitBin ^ "\\packman.exe";
-	nIcon = 0;
 	sItemName = "Greentree Live Shortcuts";
 	if IsDemo then
 		//sItemName = "Greentree Demo Icons";
@@ -260,19 +219,15 @@ begin
 	sCommandLine = RootDir;
 	LongPathToQuote(sCommandLine, TRUE);
 	if bDesktopIcons then
-		AddFolderIcon(FOLDER_DESKTOP, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);	
+		CreateShortcut(FOLDER_DESKTOP, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE); //M1
 	endif;
 	
 	//Now create the Batch file links if required.
 	if (MultiUser) then
 		sWorkingDir = TARGETDIR ^ "\\Live";
 		sCommandLine = "";
-		sIconPath = s32BitBin ^ "\\packman.exe";
-		nIcon = 0;
-		nFlag = REPLACE|RUN_MINIMIZED;	
 		sItemName= "Stop Greentree Services";
 		sProgram = sWorkingDir ^ "\\StopServices.bat";
-		sShortCutKey = "";
 		if IsDemo then
 			sItemName = "Stop Greentree Demo Services";
 			sWorkingDir = TARGETDIR ^ "\\Demo";
@@ -285,24 +240,17 @@ begin
 		endif;
 		shortCutName = RootDir ^ "\\" ^ sItemName + ".lnk";
 		LongPathToQuote(shortCutName, FALSE);
-		LongPathToQuote(sIconPath, FALSE);
-		//createShortCut(shortCutName, sProgram, sItemName, sWorkingDir, sCommandLine, sIconPath, nIcon);
 		LongPathToQuote(sProgram, TRUE);
 		sCommandLine = sProgram + " " + sCommandLine;
-		AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
+		CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE|RUN_MINIMIZED); //M1
 		if bDesktopIcons then
-			AddFolderIcon(FOLDER_DESKTOP, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);	
+			CreateShortcut(FOLDER_DESKTOP, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE|RUN_MINIMIZED); //M1	
 		endif;
-		AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);	
+		CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE|RUN_MINIMIZED); //M1
 		sWorkingDir = TARGETDIR ^ "\\Live";
 		sCommandLine = "";
-		sIconPath = s32BitBin ^ "\\packman.exe";
-		nIcon = 0;
-		nFlag = REPLACE|RUN_MINIMIZED;	
 		sItemName= "Start Greentree Services";
 		sProgram = sWorkingDir ^ "\\StartServices.bat";
-		
-		sShortCutKey = "";
 		if IsDemo then
 			sItemName = "Start Greentree Demo Services";
 			sWorkingDir = TARGETDIR ^ "\\Demo";
@@ -315,20 +263,14 @@ begin
 		endif;
 		shortCutName = RootDir ^ "\\" ^ sItemName + ".lnk";
 		LongPathToQuote(shortCutName, FALSE);
-		LongPathToQuote(sIconPath, FALSE);
-		//createShortCut(shortCutName, sProgram, sItemName, sWorkingDir, sCommandLine, sIconPath, nIcon);
 		LongPathToQuote(sProgram, TRUE);
 		sCommandLine = sProgram + " " + sCommandLine;
-		AddFolderIcon(RootDir, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
+		CreateShortcut(RootDir, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE|RUN_MINIMIZED); //M1
 		if bDesktopIcons then
-			AddFolderIcon(FOLDER_DESKTOP, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);	
+			CreateShortcut(FOLDER_DESKTOP, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE|RUN_MINIMIZED); //M1	
 		endif;
-		AddFolderIcon(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sIconPath, nIcon, sShortCutKey, nFlag);
-		
-		
-			
+		CreateShortcut(sProgramFolder, sItemName, sCommandLine, sWorkingDir, sGreentreeIconPath, ICON0, NOSHORTCUTKEY, REPLACE|RUN_MINIMIZED); //M1
 	endif;
-	
 end;
 
 
@@ -374,25 +316,3 @@ begin
 end;
 	
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

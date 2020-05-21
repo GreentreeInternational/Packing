@@ -5,7 +5,6 @@ prototype CreateDemoServices();
 prototype SetUpDemoProgramFolders();
 prototype GTDemoBatchFiles();
 prototype RunDemoSetupWizard();
-prototype SetUpDemoProgramFoldersOld();
 #endif
 
 

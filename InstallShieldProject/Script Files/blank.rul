@@ -9,6 +9,7 @@
 //Modifications:
 //Date: 27 Aptil 2004, Added Jade 6 Changes, RN
 //Date: 30 May 2014, InstallShield 2012 update
+//M3, CP, 15 May 2020, MGT-5086, All 64-bit
 //----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
@@ -140,7 +141,7 @@ end;
 
 
 //----------------------------------------------------------------------
-//Create the batch files for starting and stoping the services
+//Create the batch files for starting and stopping the services
 //----------------------------------------------------------------------
 function GTBlankBatchFiles()
 
@@ -166,9 +167,7 @@ begin
 	result = OpenFile(fileHandle, TARGETDIR ^ "\\Live\\", "StopServices.bat");
 	if result >= 0 then
 		binPath = "";
-		StrToLower(binPath, svBlankBin);
-		StrReplace(binPath, "\\bin64", "\\bin", 0);		
-				
+		StrToLower(binPath, svBlankBin);				
 		LongPathToQuote(binPath, FALSE);
 		sysPath = svBlankSystem;
 		LongPathToQuote(sysPath, FALSE);

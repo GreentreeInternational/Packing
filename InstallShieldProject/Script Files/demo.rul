@@ -8,6 +8,7 @@
 //Purpose: Seperate the install procedures to those to do with the Demo System
 //Modifications:
 //Date: 30 May 2014, InstallShield 2012 update
+//M2, CP, 15 May 2020, MGT-5086, All 64-bit, removed SetUpDemoProgramFoldersOld
 //----------------------------------------------------------------------
 
 //----------------------------------------------------------------------
@@ -134,123 +135,6 @@ begin
 end;
 
 
-function SetUpDemoProgramFoldersOld()
-	STRING szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, szShortCutKey;
-	NUMBER nIcon, nFlag;
-	STRING szPath, szProgram, szIni;
-begin
-
-	ProgDefGroupType(COMMON);
-	
-	if bIsDemo then
-		szProgramFolder = "Greentree\\Greentree Demo";
-		szItemName = "Greentree Demo (single user)";
-		
-		szProgram = svDemoBin;
-		LongPathToQuote(szProgram, FALSE);
-		szProgram = szProgram ^ "\\jade.exe";
-		LongPathToQuote(szProgram, TRUE);
-		
-		szPath = svDemoSystem;
-		LongPathToQuote(szPath, TRUE);
-		
-		szIni = TARGETDIR ^ "\\JadeDemo.ini";
-		LongPathToQuote(szIni, TRUE);
-		
-		if bIsDemoSingle then
-			szCommandLine = szProgram + " path=" + szPath + " ini= " + szIni + "  App=POSLogin Schema=POSSchema Server=singleuser";
-			szWorkingDir = svDemoBin;
-			LongPathToQuote(szWorkingDir, FALSE);
-			szIconPath = szWorkingDir ^ "\\packman.exe";
-			//LongPathToQuote(szIconPath, TRUE);
-			//LongPathToQuote(szWorkingDir, TRUE);
-			nIcon = 0;
-			nFlag = REPLACE;
-			AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
-			AddFolderIcon(FOLDER_DESKTOP ^ "\\Greentree_Demo_(Icons)", szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
-		endif;
-		
-		szItemName = "Greentree Demo Packman";
-		szProgram = svDemoBin;
-		LongPathToQuote(szProgram, FALSE);
-		szProgram = szProgram ^ "\\packman.exe";
-		//LongPathToQuote(szProgram, TRUE);		
-		szIconPath = szProgram;
-		szCommandLine = szProgram;
-		nIcon = 0;
-		nFlag = REPLACE;
-		AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
-		AddFolderIcon(FOLDER_DESKTOP ^ "\\Greentree_Demo_(Icons)", szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);			
-	endif;
-	
-	if bIsDemo && bIsDemoMulti then
-		//do the services
-		szItemName = "Greentree Demo (FAT)";
-		szProgram = svDemoBin;
-		LongPathToQuote(szProgram, FALSE);
-		szProgram = szProgram ^ "\\ConnectionManager.exe";
-		LongPathToQuote(szProgram, TRUE);
-		szCommandLine = "";	
-		szWorkingDir = svDemoBin;
-		LongPathToQuote(szWorkingDir, FALSE);
-		szIconPath = szWorkingDir ^ "\\packman.exe";
-		LongPathToQuote(szIconPath, FALSE);
-		nIcon = 0;
-		nFlag = REPLACE;
-		AddFolderIcon(szProgramFolder, szItemName, szProgram, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
-		AddFolderIcon(FOLDER_DESKTOP ^ "\\Greentree_Demo_(Icons)", szItemName, szProgram, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);	
-		
-		/*		
-		szItemName = "Greentree Packman";
-		szProgram = svDemoBin;
-		LongPathToQuote(szProgram, FALSE);
-		szProgram = szProgram ^ "\\packman.exe";
-		LongPathToQuote(szProgram, TRUE);
-		szCommandLine = szProgram;
-		szIconPath = szProgram;
-		LongPathToQuote(szIconPath, FALSE);
-		nIcon = 0;
-		nFlag = REPLACE;
-		AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);				
-		*/
-		
-		if bDoDemoStartBatch then
-			szItemName = "Start Greentree Demo Services";
-			szProgram = TARGETDIR;
-			LongPathToQuote(szProgram, FALSE);
-			szCommandLine = "\"" + szProgram + "\\StartDemoServices.bat\"";
-			szProgram = svDemoBin;
-			LongPathToQuote(szProgram, FALSE);
-			szProgram = szProgram ^ "\\packman.exe";
-			LongPathToQuote(szProgram, TRUE);
-			szIconPath = szProgram;
-			LongPathToQuote(szIconPath, FALSE);
-			szWorkingDir = TARGETDIR;
-			nIcon = 0;
-			nFlag = REPLACE|RUN_MINIMIZED;
-			AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);
-		endif;
-		
-		if bDoDemoStopBatch then
-			szItemName = "Stop Greentree Demo Services";
-			szProgram = TARGETDIR;
-			LongPathToQuote(szProgram, FALSE);
-			szCommandLine = "\"" + szProgram + "\\StopDemoServices.bat\"";
-			szProgram = svDemoBin;
-			LongPathToQuote(szProgram, FALSE);
-			szProgram = szProgram ^ "\\packman.exe";
-			LongPathToQuote(szProgram, TRUE);
-			szIconPath = szProgram;
-			LongPathToQuote(szIconPath, FALSE);
-			szWorkingDir = TARGETDIR;
-			nIcon = 0;
-			nFlag = REPLACE|RUN_MINIMIZED;
-			AddFolderIcon(szProgramFolder, szItemName, szCommandLine, szWorkingDir, szIconPath, nIcon, szShortCutKey, nFlag);				
-		endif;	
-	endif;
-							
-end;
-
 //----------------------------------------------------------------------
 //Create the batch files for starting and stoping the services
 //----------------------------------------------------------------------
@@ -285,7 +169,6 @@ begin
 	if result >= 0 then
 		binPath = "";
 		StrToLower(binPath, svDemoBin);
-		StrReplace(binPath, "\\bin64", "\\bin", 0);	
 		LongPathToQuote(binPath, FALSE);
 		sysPath = svDemoSystem;
 		LongPathToQuote(sysPath, FALSE);
