@@ -679,7 +679,7 @@
 		<col def="i4">Type</col>
 		<row><td>COMMONFILES</td><td>&lt;CommonFilesFolder&gt;</td><td/><td>2</td></row>
 		<row><td>CommonFilesFolder</td><td/><td/><td>1</td></row>
-		<row><td>DBSourceDIR</td><td>e:\</td><td/><td>2</td></row>
+		<row><td>DBSourceDIR</td><td>E:\</td><td/><td>2</td></row>
 		<row><td>ISPROJECTDIR</td><td>1</td><td/><td>1</td></row>
 		<row><td>ISProductFolder</td><td/><td/><td>1</td></row>
 		<row><td>ISProjectDataFolder</td><td>1</td><td/><td>1</td></row>
@@ -754,11 +754,7 @@
 		<col def="S255">DotNetBuildConfiguration</col>
 		<col def="S255">MsiCommandLine</col>
 		<col def="I4">ISSetupPrerequisiteLocation</col>
-		<row><td>CDROM_IMAGE</td><td>Media</td><td/><td>PackageName</td><td>0</td><td>1033</td><td>2</td><td>2</td><td>Intel</td><td/><td>1033</td><td>3</td><td>650</td><td>0</td><td>2048</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>141</td><td/><td/><td/><td/></row>
-		<row><td>Default</td><td>Media</td><td/><td>PackageName</td><td>0</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>665600</td><td>2</td><td>2048</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>28</td><td/><td/><td/><td/></row>
-		<row><td>GT2.1DVD</td><td>Media</td><td>e:\Temp\Build</td><td>PackageName</td><td>0</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>0</td><td>0</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>12</td><td/><td/><td/><td/></row>
-		<row><td>GT3D-DVD</td><td>Media</td><td>e:\LoadNGo\Temp\Build</td><td>PackageName</td><td>3</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>4.38</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>12</td><td/><td/><td/><td/></row>
-		<row><td>Release 1</td><td>Media</td><td/><td>PackageName</td><td>3</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>4.38</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>12</td><td/><td/><td/><td/></row>
+		<row><td>GT3D-DVD</td><td>Media</td><td>E:\InstallShieldProject\Media\GT3D-DVD</td><td>PackageName</td><td>3</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>4.38</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>12</td><td/><td/><td/><td/></row>
 		<row><td>SINGLE_EXE_IMAGE</td><td>Media</td><td/><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>0</td><td>0</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>13</td><td/><td/><td/><td/></row>
 	</table>
 
@@ -784,11 +780,7 @@
 		<col def="S255">InitDlgProductName</col>
 		<col def="I4">Attributes</col>
 		<col def="S255">CertPassword</col>
-		<row><td>CDROM_IMAGE</td><td>Media</td><td/><td/><td>{1FCC2BF0-C0E0-40A8-AB58-DD8BF2375D90}</td><td/><td/><td/><td/><td>-1</td><td/><td>-1</td><td/><td/><td/><td/><td/><td/><td/><td>15296</td><td/></row>
-		<row><td>Default</td><td>Media</td><td/><td/><td>{016D6C0A-978D-4288-9CFB-AF377D119EFF}</td><td/><td/><td/><td/><td>4100</td><td/><td>-1</td><td/><td/><td/><td/><td/><td/><td>Greentree Financial Software</td><td>15296</td><td/></row>
-		<row><td>GT2.1DVD</td><td>Media</td><td/><td/><td>{4FE60C02-0624-42B6-BD72-5FB90198F785}</td><td/><td/><td/><td/><td>-1</td><td/><td>-1</td><td/><td/><td/><td/><td/><td/><td/><td>15296</td><td/></row>
 		<row><td>GT3D-DVD</td><td>Media</td><td/><td/><td>{C7DE8CEE-2486-44A2-80B4-DFFE3A35917A}</td><td/><td/><td/><td/><td>-1</td><td/><td>-1</td><td/><td/><td/><td/><td/><td/><td/><td>15296</td><td/></row>
-		<row><td>Release 1</td><td>Media</td><td/><td/><td>{9DE0BBC7-BF6D-4E4D-85FB-215F153562CE}</td><td/><td/><td/><td/><td>-1</td><td/><td>-1</td><td/><td/><td/><td/><td/><td/><td/><td>15296</td><td/></row>
 		<row><td>SINGLE_EXE_IMAGE</td><td>Media</td><td/><td/><td>{372ED09C-7F5C-4843-801B-CE774C64D238}</td><td>Setup.exe</td><td/><td/><td/><td>-1</td><td/><td>-1</td><td/><td/><td/><td/><td/><td/><td/><td>15296</td><td/></row>
 	</table>
 
@@ -1004,15 +996,7 @@
 		<col def="I2">Splash</col>
 		<col def="S0">Path</col>
 		<row><td>LicenseAgreement</td><td>license.txt</td><td/><td>0</td><td>0</td><td>&lt;ISProductFolder&gt;\Redist\0409\license.txt</td></row>
-		<row><td>SetupFile1</td><td>bkgrnd.bmp</td><td/><td>1033</td><td>0</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Compressed Files\0009-English\OS Independent\bkgrnd.bmp</td></row>
-		<row><td>SetupFile2</td><td>bkgrnd1.bmp</td><td/><td>1033</td><td>0</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Compressed Files\0009-English\OS Independent\bkgrnd1.bmp</td></row>
-		<row><td>SetupFile3</td><td>bkgrnd.bmp</td><td/><td>0</td><td>0</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Compressed Files\Language Independent\OS Independent\bkgrnd.bmp</td></row>
-		<row><td>SetupFile4</td><td>bkgrnd1.bmp</td><td/><td>0</td><td>0</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Compressed Files\Language Independent\OS Independent\bkgrnd1.bmp</td></row>
-		<row><td>SetupFile5</td><td>bkgrnd.bmp</td><td/><td>0</td><td>1</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Uncompressed Files\Language Independent\OS Independent\bkgrnd.bmp</td></row>
-		<row><td>SetupFile6</td><td>bkgrnd1.bmp</td><td/><td>0</td><td>1</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Uncompressed Files\Language Independent\OS Independent\bkgrnd1.bmp</td></row>
-		<row><td>SetupFile7</td><td>setup.bmp</td><td/><td>0</td><td>1</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Uncompressed Files\Language Independent\OS Independent\setup.bmp</td></row>
-		<row><td>SetupFile8</td><td>setup1.bmp</td><td/><td>0</td><td>1</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Uncompressed Files\Language Independent\OS Independent\setup1.bmp</td></row>
-		<row><td>SetupFile9</td><td>Thumbs.db</td><td/><td>0</td><td>1</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Uncompressed Files\Language Independent\OS Independent\Thumbs.db</td></row>
+		<row><td>SetupFile5</td><td>setup.bmp</td><td/><td>0</td><td>1</td><td>&lt;ISPROJECTDIR&gt;\Setup Files\Uncompressed Files\Language Independent\OS Independent\setup.bmp</td></row>
 	</table>
 
 	<table name="ISSetupPrerequisites">
@@ -1142,12 +1126,13 @@
 		<row><td>ID_STRING2</td><td>1033</td><td>www.greentree.com</td><td>0</td><td/><td>321000810</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>1034040045</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>Blank System</td><td>0</td><td/><td>-1700483817</td></row>
+		<row><td>ID_STRING5</td><td>1033</td><td>http://www.myob.com</td><td>0</td><td/><td>1923639943</td></row>
 		<row><td>PRODUCT_KEY</td><td>1033</td><td>Greentree.exe</td><td>0</td><td/><td>2040634507</td></row>
-		<row><td>PRODUCT_NAME</td><td>1033</td><td>Greentree</td><td>0</td><td/><td>2040634507</td></row>
+		<row><td>PRODUCT_NAME</td><td>1033</td><td>MYOB Greentree</td><td>0</td><td/><td>-1700214774</td></row>
 		<row><td>PRODUCT_NAME16</td><td>1033</td><td>Product</td><td>0</td><td/><td>2040634507</td></row>
-		<row><td>PRODUCT_VERSION</td><td>1033</td><td>3D</td><td>0</td><td/><td>321044169</td></row>
-		<row><td>TITLE_CAPTIONBAR</td><td>1033</td><td>Greentree Setup</td><td>0</td><td/><td>2040634507</td></row>
-		<row><td>TITLE_MAIN</td><td>1033</td><td>Greentree</td><td>0</td><td/><td>2040634507</td></row>
+		<row><td>PRODUCT_VERSION</td><td>1033</td><td>2020</td><td>0</td><td/><td>-1700243414</td></row>
+		<row><td>TITLE_CAPTIONBAR</td><td>1033</td><td>MYOB Greentree Setup</td><td>0</td><td/><td>-1700226998</td></row>
+		<row><td>TITLE_MAIN</td><td>1033</td><td>MYOB Greentree</td><td>0</td><td/><td>-1700218838</td></row>
 		<row><td>UNINST_DISPLAY_NAME</td><td>1033</td><td>Greentree</td><td>0</td><td/><td>2040634507</td></row>
 		<row><td>UNINST_KEY</td><td>1033</td><td>Greentree</td><td>0</td><td/><td>2040634507</td></row>
 		<row><td>VC2005NotInstalled</td><td>1033</td><td>Cannot proceed without Microsoft Visual C++ 2005 installed.</td><td>0</td><td/><td>2040634507</td></row>
@@ -1250,8 +1235,8 @@
 		<row><td>ActiveLanguage</td><td>1033</td></row>
 		<row><td>ApplicationType</td><td/></row>
 		<row><td>Comments</td><td/></row>
-		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="bda357a34262bb9777365025e93dc2dd">
-UwBJAE4ARwBMAEUAXwBFAFgARQBfAEkATQBBAEcARQABAE0AZQBkAGkAYQA=
+		<row><td>CurrentMedia</td><td dt:dt="bin.base64" md5="8e3b0153c3d899f6d9ccacf9bc250322">
+RwBUADMARAAtAEQAVgBEAAEATQBlAGQAaQBhAA==
 			</td></row>
 		<row><td>DialogSizeType</td><td>1</td></row>
 		<row><td>DoMaintenance</td><td>1</td></row>
@@ -1269,13 +1254,13 @@ UwBJAE4ARwBMAEUAXwBFAFgARQBfAEkATQBBAEcARQABAE0AZQBkAGkAYQA=
 		<row><td>ISEnableUpdateService</td><td>0</td></row>
 		<row><td>ISEngineBinding</td><td>1</td></row>
 		<row><td>ISMaintenanceExperience</td><td>0</td></row>
-		<row><td>ISOSFilter</td><td>59768832</td></row>
+		<row><td>ISOSFilter</td><td>58720256</td></row>
 		<row><td>ISShowUpdateUI</td><td>1</td></row>
 		<row><td>ISUSLock</td><td>{42C02DB8-F1A6-44FC-9C9D-C573CCC3A14C}</td></row>
 		<row><td>ISUSSignature</td><td>{B763AA04-A163-4AD2-902C-BF773A2BD041}</td></row>
 		<row><td>MIFFileName</td><td>Status.mif</td></row>
 		<row><td>MIFSerial</td><td/></row>
-		<row><td>Owner</td><td/></row>
+		<row><td>Owner</td><td>MYOB Greentree</td></row>
 		<row><td>SaveAsSchema</td><td/></row>
 		<row><td>SccEnabled</td><td>0</td></row>
 		<row><td>SccPath</td><td/></row>
@@ -1333,17 +1318,18 @@ UwBJAE4ARwBMAEUAXwBFAFgARQBfAEkATQBBAEcARQABAE0AZQBkAGkAYQA=
 		<col def="L0">Value</col>
 		<col def="S255">ISComments</col>
 		<row><td>ARPPRODUCTICON</td><td>ARPPRODUCTICON.exe</td><td/></row>
-		<row><td>ARPURLINFOABOUT</td><td>http://www.GreentreeInternational.com</td><td/></row>
+		<row><td>ARPURLINFOABOUT</td><td>##ID_STRING5##</td><td/></row>
 		<row><td>DWUSINTERVAL</td><td>30</td><td/></row>
 		<row><td>DWUSLINK</td><td>CECBC7D8FE9BC7A80EACE78FB9FC978F998C808FCE9B27FFCEBCA08F8EABB798D9FC878FE9AC</td><td/></row>
 		<row><td>DefaultUIFont</td><td>Tahoma8</td><td/></row>
+		<row><td>ISAppExeFile</td><td/><td/></row>
 		<row><td>ISENABLEDWUSFINISHDIALOG</td><td/><td/></row>
 		<row><td>IS_SQLSERVER_AUTHENTICATION</td><td>0</td><td/></row>
 		<row><td>IS_SQLSERVER_DATABASE</td><td/><td/></row>
 		<row><td>IS_SQLSERVER_PASSWORD</td><td/><td/></row>
 		<row><td>IS_SQLSERVER_SERVER</td><td/><td/></row>
 		<row><td>IS_SQLSERVER_USERNAME</td><td>sa</td><td/></row>
-		<row><td>Manufacturer</td><td>Greentree International</td><td/></row>
+		<row><td>Manufacturer</td><td>MYOB Technology Pty Ltd</td><td/></row>
 		<row><td>Option1</td><td>***DO_NOT_BUILD***</td><td/></row>
 		<row><td>Option2</td><td>***DO_NOT_BUILD***</td><td/></row>
 		<row><td>Option3</td><td>***DO_NOT_BUILD***</td><td/></row>
@@ -1375,7 +1361,7 @@ UwBJAE4ARwBMAEUAXwBFAFgARQBfAEkATQBBAEcARQABAE0AZQBkAGkAYQA=
 		<row><td>ProObjUseDefaultSettings</td><td>##IDS_PROOBJ_USEDEFAULTSETTINGS##</td><td/></row>
 		<row><td>ProObjWizard</td><td>_stock_</td><td/></row>
 		<row><td>ProductCode</td><td>E7C78082-F16B-4A5E-B87D-734962E49313</td><td/></row>
-		<row><td>ProductName</td><td>Greentree Financial Software</td><td/></row>
+		<row><td>ProductName</td><td>MYOB Greentree</td><td/></row>
 		<row><td>ProductVersion</td><td>4</td><td/></row>
 	</table>
 
