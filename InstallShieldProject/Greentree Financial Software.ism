@@ -754,7 +754,7 @@
 		<col def="S255">DotNetBuildConfiguration</col>
 		<col def="S255">MsiCommandLine</col>
 		<col def="I4">ISSetupPrerequisiteLocation</col>
-		<row><td>GT3D-DVD</td><td>Media</td><td>E:\InstallShieldProject\Media\GT3D-DVD</td><td>PackageName</td><td>3</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>4.38</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>12</td><td/><td/><td/><td/></row>
+		<row><td>GT3D-DVD</td><td>Media</td><td>&lt;ISProjectDataFolder&gt;\Media\GT3D-DVD</td><td>PackageName</td><td>3</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>4.38</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>12</td><td/><td/><td/><td/></row>
 		<row><td>SINGLE_EXE_IMAGE</td><td>Media</td><td/><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>0</td><td>0</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>13</td><td/><td/><td/><td/></row>
 	</table>
 
