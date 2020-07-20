@@ -754,7 +754,7 @@
 		<col def="S255">DotNetBuildConfiguration</col>
 		<col def="S255">MsiCommandLine</col>
 		<col def="I4">ISSetupPrerequisiteLocation</col>
-		<row><td>GT3D-DVD</td><td>Media</td><td>&lt;ISProjectDataFolder&gt;\Media\GT3D-DVD</td><td>PackageName</td><td>3</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>4.38</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>12</td><td/><td/><td/><td/></row>
+		<row><td>GT3D-DVD</td><td>Media</td><td>E:\InstallShieldProject\Media\GT3D-DVD</td><td>PackageName</td><td>3</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>4.38</td><td>1</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>12</td><td/><td/><td/><td/></row>
 		<row><td>SINGLE_EXE_IMAGE</td><td>Media</td><td/><td>PackageName</td><td>1</td><td>1033</td><td>2</td><td>1</td><td>Intel</td><td/><td>1033</td><td>3</td><td>0</td><td>0</td><td>0</td><td/><td>0</td><td/><td>MediaLocation</td><td/><td>http://</td><td/><td/><td/><td/><td>13</td><td/><td/><td/><td/></row>
 	</table>
 
@@ -1074,7 +1074,7 @@
 		<row><td>CMPSTR_TESTSINGLE</td><td>1033</td><td>This will install a Greentree Single-User test system.</td><td>0</td><td/><td>2040634507</td></row>
 		<row><td>CMPSTR_TESTSYS</td><td>1033</td><td>This will install a Greentree test system.\nYou can choose to install a single/multi user system or both.</td><td>0</td><td/><td>2040634507</td></row>
 		<row><td>CMPSTR_WEBSTORE</td><td>1033</td><td>The install will run the Webstore installation after finishing this setup and also copy Webstore documentation.</td><td>0</td><td/><td>2040634507</td></row>
-		<row><td>COMPANY_NAME</td><td>1033</td><td>Greentree International</td><td>0</td><td/><td>2040634507</td></row>
+		<row><td>COMPANY_NAME</td><td>1033</td><td>MYOB Technology Pty Ltd</td><td>0</td><td/><td>-1549248980</td></row>
 		<row><td>COMPANY_NAME16</td><td>1033</td><td>Company</td><td>0</td><td/><td>2040634507</td></row>
 		<row><td>ERROR_COMPONENT</td><td>1033</td><td>Component:</td><td>0</td><td/><td>2040634507</td></row>
 		<row><td>ERROR_FILE</td><td>1033</td><td>File:</td><td>0</td><td/><td>2040634507</td></row>
@@ -1123,18 +1123,18 @@
 		<row><td>IDS__DialogId_10105_ControlId_9</td><td>1033</td><td>Cancel</td><td>0</td><td/><td>765623024</td></row>
 		<row><td>IDS__DialogId_10105_ControlId_901</td><td>1033</td><td>Select the features you want to install, and deselect the features you do not want to install.  Click Next to continue.</td><td>0</td><td/><td>765623024</td></row>
 		<row><td>ID_STRING1</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>2040608780</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>www.greentree.com</td><td>0</td><td/><td>321000810</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>http://www.myob.com</td><td>0</td><td/><td>-1549226452</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>1034040045</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>Blank System</td><td>0</td><td/><td>-1700483817</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>http://www.myob.com</td><td>0</td><td/><td>1923639943</td></row>
-		<row><td>PRODUCT_KEY</td><td>1033</td><td>Greentree.exe</td><td>0</td><td/><td>2040634507</td></row>
+		<row><td>PRODUCT_KEY</td><td>1033</td><td>MYOB Greentree</td><td>0</td><td/><td>-1549214164</td></row>
 		<row><td>PRODUCT_NAME</td><td>1033</td><td>MYOB Greentree</td><td>0</td><td/><td>-1700214774</td></row>
 		<row><td>PRODUCT_NAME16</td><td>1033</td><td>Product</td><td>0</td><td/><td>2040634507</td></row>
-		<row><td>PRODUCT_VERSION</td><td>1033</td><td>2020</td><td>0</td><td/><td>-1700243414</td></row>
+		<row><td>PRODUCT_VERSION</td><td>1033</td><td>20</td><td>0</td><td/><td>-1549248948</td></row>
 		<row><td>TITLE_CAPTIONBAR</td><td>1033</td><td>MYOB Greentree Setup</td><td>0</td><td/><td>-1700226998</td></row>
 		<row><td>TITLE_MAIN</td><td>1033</td><td>MYOB Greentree</td><td>0</td><td/><td>-1700218838</td></row>
-		<row><td>UNINST_DISPLAY_NAME</td><td>1033</td><td>Greentree</td><td>0</td><td/><td>2040634507</td></row>
-		<row><td>UNINST_KEY</td><td>1033</td><td>Greentree</td><td>0</td><td/><td>2040634507</td></row>
+		<row><td>UNINST_DISPLAY_NAME</td><td>1033</td><td>MYOB Greentree</td><td>0</td><td/><td>-1549236660</td></row>
+		<row><td>UNINST_KEY</td><td>1033</td><td>MYOB Greentree</td><td>0</td><td/><td>-1549238708</td></row>
 		<row><td>VC2005NotInstalled</td><td>1033</td><td>Cannot proceed without Microsoft Visual C++ 2005 installed.</td><td>0</td><td/><td>2040634507</td></row>
 	</table>
 
@@ -1360,9 +1360,9 @@ RwBUADMARAAtAEQAVgBEAAEATQBlAGQAaQBhAA==
 		<row><td>ProObjShortName</td><td>##IDS_PROOBJ_SHORTNAME##</td><td/></row>
 		<row><td>ProObjUseDefaultSettings</td><td>##IDS_PROOBJ_USEDEFAULTSETTINGS##</td><td/></row>
 		<row><td>ProObjWizard</td><td>_stock_</td><td/></row>
-		<row><td>ProductCode</td><td>E7C78082-F16B-4A5E-B87D-734962E49313</td><td/></row>
+		<row><td>ProductCode</td><td>{6CD250C7-05C7-EA11-807B-0050569E6013}</td><td/></row>
 		<row><td>ProductName</td><td>MYOB Greentree</td><td/></row>
-		<row><td>ProductVersion</td><td>4</td><td/></row>
+		<row><td>ProductVersion</td><td>20</td><td/></row>
 	</table>
 
 	<table name="RadioButton">
